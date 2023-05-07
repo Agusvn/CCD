@@ -1,0 +1,134 @@
+create table Nacionalidades(
+nac_cod int primary key not null,
+nac_desc varchar(30) not null
+);
+
+create table Provincias(
+pro_cod int primary key not null, 
+pro_desc varchar(30) not null
+);
+
+create table Localidades(
+loc_cod int primary key not null,
+loc_desc varchar(30) not null
+);
+
+create table Cursos_jar(
+cur_cod int primary key not null,
+cur_desc varchar(30) not null
+);
+
+create table Cursos_prima(
+cur_cod int primary key not null,
+cur_desc varchar(30) not null
+);
+
+create table Cursos_secu(
+cur_cod int primary key not null,
+cur_desc varchar(30)
+);
+
+create table Materias(
+mat_cod primary key not null,
+mat_desc varchar(30) not null
+);
+
+create table Preceptor(
+dni int primary key not null,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+fecha_nac date not null,
+nac_cod int not null references Nacionalidades(nac_cod),
+direccion varchar(30) not null,
+loc_cod int not null references Localidades(loc_cod),
+pro_cod int not null references Provincias (pro_cod),
+telefono char(10) not null,
+email varchar(30) not null,
+curso_cod int references Cursos_secu(cur_cod)
+);
+
+create table Adulto_Responsable(
+dni int primary key not null,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+fecha_nac date not null,
+nac_cod int not null references Nacionalidades(nac_cod),
+direccion varchar(30) not null,
+loc_cod int not null references Localidades(loc_cod),
+pro_cod int not null references Provincias (pro_cod),
+telefono_1 char(10) not null,
+telefono_2 varchar(30),
+email varchar(30) not null,
+profesion varchar(30) not null 
+);
+
+create table Alumnos_jar(
+dni primary key int not null,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+fecha_nac date not null,
+edad_30jun int not null,
+nac_cod int not null references Nacionalidades(nac_cod),
+direccion varchar(30) not null,
+loc_cod int not null references Localidades(loc_cod),
+pro_cod int not null references Provincias (pro_cod),
+dni_adu int not null references Adulto_Responsable(dni)
+);
+
+create table Alumnos_prima(
+dni primary key int not null,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+fecha_nac date not null,
+edad_30jun int not null,
+nac_cod int not null references Nacionalidades(nac_cod),
+direccion varchar(30) not null,
+loc_cod int not null references Localidades(loc_cod),
+pro_cod int not null references Provincias (pro_cod),
+dni_adu int not null references Adulto_Responsable(dni)
+);
+
+create table Alumnos_secu(
+dni primary key int not null,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+fecha_nac date not null,
+edad_30jun int not null,
+nac_cod int not null references Nacionalidades(nac_cod),
+direccion varchar(30) not null,
+loc_cod int not null references Localidades(loc_cod),
+pro_cod int(30) not null references Provincias (pro_cod),
+telefono char(10),
+email varchar(30),
+dni_adu int not null references Adulto_Responsable(dni)
+);
+
+create table Profesor(
+profe_dni int primary key not null,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+email varchar(30) not null,
+);
+
+create table Prof_materia_curso_jar(
+id int primary key not null,
+profe_dni int not null references Profesor(profe_cod),
+mat_cod int not null references Materias(mat_cod),
+cur_cod int not null references Cursos_jar(cur_cod)
+);
+
+
+create table Prof_materia_curso_prima(
+id int primary key not null,
+profe_dni int not null references Profesor(profe_cod),
+mat_cod int not null references Materias(mat_cod),
+cur_cod int not null references Cursos_prima(cur_cod)
+);
+
+create table Prof_materia_curso_secu(
+id int primary key not null,
+profe_dni int not null references Profesor(profe_cod),
+mat_cod int not null references Materias(mat_cod),
+cur_cod int not null references Cursos_secu(cur_cod)
+);
+
