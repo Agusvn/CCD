@@ -639,7 +639,67 @@ public class Cuaderno extends JFrame{
     }
 
     public void MenuAdultoResponsable(){}
-    public void MenuDocenteJardin(){}
+    
+    public void MenuDocenteJardin() {
+        JPanel panel = new JPanel(null);
+        panel.setSize(1000, 700);
+        panel.setLayout(null);
+
+        String[] cursos = { "Sala Roja", "Sala Amarilla", "Sala Naranja" };
+        JComboBox<String> combo_curso = new JComboBox<String>(cursos);
+        combo_curso.setBounds(100, 50, 200, 30);
+        panel.add(combo_curso);
+
+        String[] alumnos = { "Agustín Villa", "Joaquín Guardia", "Masaki Kondo" };
+        JComboBox<String> combo_alumnos = new JComboBox<String>(alumnos);
+        combo_alumnos.setBounds(400, 50, 200, 30);
+        panel.add(combo_alumnos);
+
+        JButton add_nota = new JButton("Añadir Nota");
+        add_nota.setBounds(700, 50, 200, 30);
+        panel.add(add_nota);
+
+        JPanel panel_table = new JPanel(new BorderLayout());
+        panel_table.setBounds(100, 110, 800, 500);
+
+        DefaultTableModel modelo = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Hace que todas las celdas sean de solo lectura
+            }
+        };
+
+        modelo.addColumn("Fecha");
+        modelo.addColumn("Comunicado");
+        modelo.addColumn("Notificado");
+
+        JTable tabla = new JTable(modelo);
+        tabla.setBorder(new LineBorder(Color.BLACK));
+
+        // Configura el ancho fijo para las columnas de encabezado
+        TableColumn column;
+
+        // "Fecha" con ancho 100
+        column = tabla.getColumnModel().getColumn(0);
+        column.setPreferredWidth(100);
+
+        // "Comunicado" con ancho 600
+        column = tabla.getColumnModel().getColumn(1);
+        column.setPreferredWidth(600);
+
+        // "Notificado" con ancho 100
+        column = tabla.getColumnModel().getColumn(2);
+        column.setPreferredWidth(100);
+
+        modelo.addRow(new Object[] { "29/9", "Se informa que Main", "Sí" });
+        modelo.addRow(new Object[] { "29/9", "Se informa que Mainsito", "No" });
+        modelo.addRow(new Object[] { "29/9", "Se informa que Mainsote", "No" });
+
+        panel_table.add(new JScrollPane(tabla), BorderLayout.CENTER);
+        panel.add(panel_table);
+        this.setContentPane(panel);
+    }
+    
     public void MenuDocentePrimaria(){}
     public void MenuDocenteSecundaria(){}
     public void MenuPreceptor(){}
