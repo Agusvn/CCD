@@ -10,11 +10,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.time.Year;
-
 import java.lang.String;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 public class Cuaderno extends JFrame{
     protected String var_nom;
+    protected String var_contr;
     protected int contraseña;
     private VentanaRegistro ventanaRegistro;
     private String nom_us;
@@ -28,6 +31,10 @@ public class Cuaderno extends JFrame{
     private String colegio;
     public int userCode;
     public Date fecha_nac;
+    private String provincia;
+    private String nacionalidad;
+    private String localidad;
+    private String email;
     
     
     public Cuaderno(){
@@ -85,6 +92,34 @@ public class Cuaderno extends JFrame{
             while (resultSet.next()) {
                 String nombre = resultSet.getString(campo);
                 lista.add(nombre);
+            }
+            resultSet.close();
+            statement.close();
+            con.close();
+            db.cerrarConexion();
+            
+            return lista;
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+    public ArrayList<String> consultaWhere2(String campo, String campo2, String tabla, String campo3, String valor, String valor2){
+        ConexionDB db = new ConexionDB();
+        Connection con = db.iniciarConexion();
+        try{
+            
+            Statement statement = con.createStatement();
+            ResultSet resultSet = statement.executeQuery("Select " + campo +", " + campo2 + " FROM " + tabla + " WHERE " + campo3 + " = '" + valor + "'" + "and " + campo2 + "= '" + valor2 + "'");
+
+            ArrayList<String> lista = new ArrayList<>();
+
+            while (resultSet.next()) {
+                String nombre = resultSet.getString(campo);
+                String contraseña = resultSet.getString(campo2);
+                lista.add(nombre);
+                lista.add(contraseña);
             }
             resultSet.close();
             statement.close();
@@ -241,20 +276,32 @@ public class Cuaderno extends JFrame{
         this.setVisible(false); 
     }
 
-    public void InicioSesion(){
-        Font f2 = new Font("Helvetica", Font.PLAIN, 16);
-        Cuaderno datos_login = new Cuaderno();
-        datos_login.setSize(700, 700);
-        ImageIcon icono = new ImageIcon("logo.png");
-        datos_login.setIconImage(icono.getImage());
-        datos_login.setVisible(true);
-        datos_login.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        JPanel panel2 =  new JPanel(null);
-        panel2.setSize(700, 700);
-        panel2.setBackground(Color.decode("#000059"));
-
-        datos_login.add(panel2);
+    public void InicioSesion(int num){
+        ArrayList<String> array_ = new ArrayList<>();
+        String userType;
+        boolean valid;
+        switch(num){
+            case 0:
+                array_ = consultaWhere("tipo", "usuarios", "username", var_nom);
+                userType = array_.get(0);
+                valid = validaUser(var_nom, var_contr);
+                if(valid == true){
+                    switch(userType){
+                        case "Alumno":
+                            MenuAlumno_();
+                            break;
+                        default:
+                            break;
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(null, "Nombre de usuario o contraseña no válidos");
+                }
+            case 1:
+                System.out.println("");
+                break;
+            default:
+                break;
+        }
     }
 
     private class VentanaRegistro extends JFrame {
@@ -450,12 +497,15 @@ public class Cuaderno extends JFrame{
                     if (isFieldValid(TApellido) && isFieldValid(TContra) && isFieldValid(TDireccion)
                         && isFieldValid(Tdni) && isFieldValid(TNom_us) && isFieldValid(T_telefono) && isFieldValid(TNombre)
                         && isComboValid(Tipo) && isComboValid(combo_dia) && isComboValid(combo_pro) && isComboValid(combo_nac)
-                        && isComboValid(combo_loc)){
+                        && isComboValid(combo_loc) && isFieldValid(Temail)){
                         
                         String YY = combo_año.getSelectedItem().toString();
                         String MM = combo_mes.getSelectedItem().toString();
                         String DD = combo_dia.getSelectedItem().toString();
-                        String fecha = YY + "-" + MM + "-" + DD;
+                        int index = listaMes.indexOf(MM);
+                        String MM_ = (index != -1) ? String.valueOf(index + 1) : null;
+
+                        String fecha = YY + "-" + MM_ + "-" + DD;
                         
                         String nombre = TNombre.getText();
                         String apellido = TApellido.getText();
@@ -469,10 +519,36 @@ public class Cuaderno extends JFrame{
                         String loc = combo_loc.getSelectedItem().toString();
                         String nac = combo_nac.getSelectedItem().toString();
                         String email = validaEmail(Temail.getText());
-                        insert(nom_us, contr, tipo, dni, nombre, apellido, fecha, direccion, telefono);
-                        if (dni!=0 && telefono!=0){
+                        
+                        ArrayList<String> arrayProv = new ArrayList<>();
+                        arrayProv = consultaWhere("pro_cod", "provincias", "pro_desc", prov);
+                        int pro_cod =  Integer.parseInt(arrayProv.get(0));
+                        
+                        ArrayList<String> arrayNac = new ArrayList<>();
+                        arrayNac = consultaWhere("nac_cod", "nacionalidades", "nac_desc", nac);
+                        int nac_cod =  Integer.parseInt(arrayProv.get(0));
+                        
+                        ArrayList<String> arrayLoc = new ArrayList<>();
+                        arrayLoc = consultaWhere("loc_cod", "localidades", "loc_desc", loc);
+                        int loc_cod =  Integer.parseInt(arrayProv.get(0));
+                        
+                        insert(nom_us, contr, tipo, dni, nombre, apellido, fecha, direccion, telefono, pro_cod, loc_cod, nac_cod, email);
+                        
+                        if (dni!=0 && telefono!=0 && email!=""){
                             ventanaRegistro.dispose();
-                            MenuAlumno_();
+                            switch(tipo){
+                                case "Alumno":
+                                    MenuAlumno_();
+                                    break;
+                                case "Preceptor":
+                                    MenuPreceptor();
+                                    break;
+                                case "Adulto Responsable":
+                                    MenuAdultoResponsable();
+                                    break;
+                                case "Gestor":
+                                    break;
+                            }
                         }
                     } else {
                         advertencia(TNombre);
@@ -607,30 +683,78 @@ public class Cuaderno extends JFrame{
                 return "";
             }
         }
-
     }
-
-    public void insert(String nom_us, String contra, String tipo, int dni, String nombre, String apellido, String fecha, String direccion, int telefono){
+    public boolean validaUser(String var_nom, String psswd){
+        ArrayList<String> lista = new ArrayList<>();
+        lista = consultaWhere2("username", "psswd", "usuarios", "username", var_nom, psswd);
+        if(!lista.isEmpty()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public void insert(String nom_us, String contra, String tipo, int dni, String nombre, String apellido, String fecha, String direccion, int telefono, int pro_cod, int loc_cod, int nac_cod, String mail) {
         ConexionDB db = new ConexionDB();
         Connection con = db.iniciarConexion();
-        try{
-            Statement statement = con.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM usuarios");
-            if (resultSet.next()){
-                int cantidadRegistros = resultSet.getInt(1);
-                userCode = cantidadRegistros+1;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            // Obtener el próximo código de usuario
+            int userCode = getNextUserCode(con);
+
+            // Consulta de inserción preparada
+            String stgInsert = "INSERT INTO usuarios (user_cod, username, psswd, tipo, dni, nombre, apellido, fecha_nac, nac_cod, direccion, loc_cod, pro_cod, telefono, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            preparedStatement = con.prepareStatement(stgInsert);
+
+            preparedStatement.setInt(1, userCode);
+            preparedStatement.setString(2, nom_us);
+            preparedStatement.setString(3, contra);
+            preparedStatement.setString(4, tipo);
+            preparedStatement.setInt(5, dni);
+            preparedStatement.setString(6, nombre);
+            preparedStatement.setString(7, apellido);
+            preparedStatement.setString(8, fecha);
+            preparedStatement.setInt(9, nac_cod);
+            preparedStatement.setString(10, direccion);
+            preparedStatement.setInt(11, loc_cod);
+            preparedStatement.setInt(12, pro_cod);
+            preparedStatement.setInt(13, telefono);
+            preparedStatement.setString(14, mail);
+
+            // Ejecutar la consulta de inserción
+            int filasAfectadas = preparedStatement.executeUpdate();
+
+            if (filasAfectadas > 0) {
+                con.commit();
+                System.out.println("Registro exitoso\n");
+            } else {
+                System.out.println("No se pudo insertar el registro\n");
             }
-            String stgInsert = "INSERT INTO usuarios VALUES (" + userCode + ", '" + nom_us + "', '" + contra + "', '" + tipo + "', '" + dni + "', '" + nombre + "', '" + apellido + "', '" + fecha + "', '" + direccion + "', " + telefono + ");";
-
-            resultSet = statement.executeQuery(stgInsert);
-            con.commit();
-            con.close();
-            System.out.println("Registro exitoso\n");
-
-        }catch(Exception e){
-            System.out.println(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         db.cerrarConexion();
+    }
+
+    private int getNextUserCode(Connection con) throws SQLException {
+        Statement statement = con.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT MAX(user_cod) FROM usuarios");
+        int nextCode = 1;
+
+        if (resultSet.next()) {
+            nextCode = resultSet.getInt(1) + 1;
+        }
+        statement.close();
+        return nextCode;
     }
 
     public void MenuAlumno_(){
