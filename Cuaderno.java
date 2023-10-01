@@ -657,6 +657,11 @@ public class Cuaderno extends JFrame{
 
         JButton add_nota = new JButton("Añadir Nota");
         add_nota.setBounds(700, 50, 200, 30);
+        add_nota.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AniadirNota();
+            }
+        });
         panel.add(add_nota);
 
         JPanel panel_table = new JPanel(new BorderLayout());
@@ -699,8 +704,194 @@ public class Cuaderno extends JFrame{
         panel.add(panel_table);
         this.setContentPane(panel);
     }
+
+    public void MenuDocentePrimaria() {
+        JPanel panel = new JPanel(null);
+        panel.setSize(1000, 700);
+        panel.setLayout(null);
+
+        String[] cursos = { "1° Grado", "2° Grado", "3° Grado" };
+        JComboBox<String> combo_curso = new JComboBox<String>(cursos);
+        combo_curso.setBounds(100, 50, 200, 30);
+        panel.add(combo_curso);
+
+        String[] alumnos = { "Agustín Villa", "Joaquín Guardia", "Masaki Kondo" };
+        JComboBox<String> combo_alumnos = new JComboBox<String>(alumnos);
+        combo_alumnos.setBounds(400, 50, 200, 30);
+        panel.add(combo_alumnos);
+
+        JButton add_nota = new JButton("Añadir Nota");
+        add_nota.setBounds(700, 50, 200, 30);
+        add_nota.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                AniadirNota();
+            }
+        });
+        panel.add(add_nota);
+
+        JPanel panel_table = new JPanel(new BorderLayout());
+        panel_table.setBounds(100, 110, 800, 500);
+
+        DefaultTableModel modelo = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Hace que todas las celdas sean de solo lectura
+            }
+        };
+
+        modelo.addColumn("Fecha");
+        modelo.addColumn("Comunicado");
+        modelo.addColumn("Notificado");
+
+        JTable tabla = new JTable(modelo);
+        tabla.setBorder(new LineBorder(Color.BLACK));
+
+        // Configura el ancho fijo para las columnas de encabezado
+        TableColumn column;
+
+        // "Fecha" con ancho 100
+        column = tabla.getColumnModel().getColumn(0);
+        column.setPreferredWidth(100);
+
+        // "Comunicado" con ancho 600
+        column = tabla.getColumnModel().getColumn(1);
+        column.setPreferredWidth(600);
+
+        // "Notificado" con ancho 100
+        column = tabla.getColumnModel().getColumn(2);
+        column.setPreferredWidth(100);
+
+        modelo.addRow(new Object[] { "29/9", "Se informa que Main", "Sí" });
+        modelo.addRow(new Object[] { "29/9", "Se informa que Mainsito", "No" });
+        modelo.addRow(new Object[] { "29/9", "Se informa que Mainsote", "No" });
+
+        panel_table.add(new JScrollPane(tabla), BorderLayout.CENTER);
+        panel.add(panel_table);
+        this.setContentPane(panel);
+    }
+
+    public void AniadirNota() {
+        Font f = new Font("Helvetica", Font.BOLD, 20);
+
+        // Crear el panel principal
+        JPanel panel = new JPanel(null);
+        panel.setSize(1000, 700);
+        panel.setLayout(null);
+
+        // Panel para opciones
+        JPanel panel_op = new JPanel(null);
+        panel_op.setSize(250, 700);
+        panel_op.setLayout(null);
+        panel_op.setBackground(Color.decode("#A5C8E7"));
+
+        // Panel para la nota
+        JPanel panel_nota = new JPanel(null);
+        panel_nota.setBounds(250, 0, 750, 700);
+
+        // Botón Volver
+        JButton bt_volver = new JButton("Volver");
+        bt_volver.setBounds(10, 10, 100, 20);
+        bt_volver.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MenuDocenteJardin();
+            }
+        });
+        panel_op.add(bt_volver);
+
+        // Combo de cursos
+        String[] cursos = { "Sala Roja", "Sala Amarilla", "Sala Naranja" };
+        JComboBox<String> combo_curso = new JComboBox<String>(cursos);
+        combo_curso.setBounds(50, 75, 150, 30);
+        panel_op.add(combo_curso);
+
+        // Array de elementos
+        String[] elementos = { "Agustín Villa", "Joaquín Guardia", "Masaki Kondo", "Agustín Villa",
+                "Joaquín Guardia", "Masaki Kondo", "Agustín Villa", "Joaquín Guardia", "Masaki Kondo", "Agustín Villa",
+                "Joaquín Guardia", "Masaki Kondo", "Agustín Villa", "Joaquín Guardia", "Masaki Kondo", "Agustín Villa",
+                "Joaquín Guardia", "Masaki Kondo", "Agustín Villa", "Joaquín Guardia", "Masaki Kondo", "Agustín Villa",
+                "Joaquín Guardia", "Masaki Kondo" };
+
+        // Panel para las casillas de verificación
+        JPanel check_panel = new JPanel();
+        check_panel.setLayout(new BoxLayout(check_panel, BoxLayout.Y_AXIS));
+
+        // JScrollPane para el panel de casillas de verificación
+        JScrollPane scrollPane = new JScrollPane(check_panel);
+        scrollPane.setBounds(50, 150, 150, 450);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(15);
+
+        // Crear el arreglo de casillas de verificación (checkboxes) para los elementos
+        JCheckBox[] checkboxes = new JCheckBox[elementos.length];
+
+        // Crear el checkbox "Seleccionar Todos"
+        JCheckBox selectAllCheckbox = new JCheckBox("Seleccionar Todos");
+
+        // Agregar ActionListener al checkbox "Seleccionar Todos"
+        selectAllCheckbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Obtener el estado del checkbox "Seleccionar Todos"
+                boolean selected = selectAllCheckbox.isSelected();
+
+                // Aplicar ese estado a todos los demás checkboxes
+                for (int i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].setSelected(selected);
+                }
+            }
+        });
+
+        // Agregar el checkbox "Seleccionar Todos" al panel de casillas de verificación
+        check_panel.add(selectAllCheckbox);
+
+        // Agregar los checkboxes al panel de casillas de verificación
+        for (int i = 0; i < elementos.length; i++) {
+            checkboxes[i] = new JCheckBox(elementos[i]);
+            checkboxes[i].setAlignmentX(Component.LEFT_ALIGNMENT);
+            check_panel.add(checkboxes[i]);
+        }
+
+        // Etiqueta y campo de texto para la fecha
+        JLabel lbl_fecha = new JLabel("Fecha");
+        lbl_fecha.setFont(f);
+        lbl_fecha.setBounds(50, 50, 150, 30);
+        panel_nota.add(lbl_fecha);
+
+        JTextField fecha = new JTextField("AAAA-MM-DD");
+        fecha.setBounds(50, 90, 150, 20);
+        panel_nota.add(fecha);
+
+        // Crear el JTextArea
+        JTextArea comunicado = new JTextArea();
+        // comunicado.setBounds(50, 140, 625, 400);
+        comunicado.setLineWrap(true); // Habilitar el salto de línea automático
+        comunicado.setWrapStyleWord(true); // Saltar palabras completas
+        comunicado.setMargin(new Insets(5, 5, 5, 5));
+
+        // Crear el JScrollPane y agregar el JTextArea a él
+        JScrollPane scrollPane_ta = new JScrollPane(comunicado);
+        scrollPane_ta.setBounds(50, 140, 625, 400);
+        scrollPane_ta.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane_ta.getVerticalScrollBar().setUnitIncrement(15);
+
+        // Agregar el JScrollPane al panel
+        panel_nota.add(scrollPane_ta); // Donde "panel_nota" es el panel en el que deseas agregar el JTextArea
+
+        // Botón "Subir Nota"
+        JButton subir_nota = new JButton("Subir Nota");
+        subir_nota.setBounds(475, 570, 200, 30);
+        panel_nota.add(subir_nota);
+
+        // Agregar componentes al panel de la nota
+        panel_nota.add(lbl_fecha);
+        panel_nota.add(fecha);
+
+        // Agregar componentes a los paneles principales
+        panel_op.add(scrollPane); // Agregamos el JScrollPane con las casillas de verificación al panel_op
+        panel.add(panel_nota);
+        panel.add(panel_op);
+        this.setContentPane(panel);
+    }
     
-    public void MenuDocentePrimaria(){}
     public void MenuDocenteSecundaria(){}
     public void MenuPreceptor(){}
 
