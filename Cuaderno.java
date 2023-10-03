@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.time.Year;
+
 import java.lang.String;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
@@ -79,13 +80,13 @@ public class Cuaderno extends JFrame{
         }
     }
     
-    public ArrayList<String> consultaWhere(String campo, String tabla, String tabla2, String valor){
+    public ArrayList<String> consultaWhere(String campo, String tabla, String campo2, String valor){
         ConexionDB db = new ConexionDB();
         Connection con = db.iniciarConexion();
         try{
             
             Statement statement = con.createStatement();
-            ResultSet resultSet = statement.executeQuery("Select " + campo + " FROM " + tabla + " WHERE " + tabla2 + " = '" + valor + "'");
+            ResultSet resultSet = statement.executeQuery("Select " + campo + " FROM " + tabla + " WHERE " + campo2 + " = '" + valor + "'");
 
             ArrayList<String> lista = new ArrayList<>();
 
@@ -105,6 +106,7 @@ public class Cuaderno extends JFrame{
             return null;
         }
     }
+  
     public ArrayList<String> consultaWhere2(String campo, String campo2, String tabla, String campo3, String valor, String valor2){
         ConexionDB db = new ConexionDB();
         Connection con = db.iniciarConexion();
@@ -221,8 +223,9 @@ public class Cuaderno extends JFrame{
             public void actionPerformed(ActionEvent e){
                 String command = e.getActionCommand();
                 if (command.equals("Iniciar Sesión")){
-                    var_nom = TNom.getText();
-                    InicioSesion();
+                    var_nom=TNom.getText();
+                    var_contr = TContra.getText();
+                    InicioSesion(0);
                 } else if (command.equals("Registrarse")){
                     mostrarVentanaRegistro();
                 }
@@ -283,19 +286,33 @@ public class Cuaderno extends JFrame{
         switch(num){
             case 0:
                 array_ = consultaWhere("tipo", "usuarios", "username", var_nom);
-                userType = array_.get(0);
-                valid = validaUser(var_nom, var_contr);
-                if(valid == true){
-                    switch(userType){
-                        case "Alumno":
-                            MenuAlumno_();
-                            break;
-                        default:
-                            break;
+                try{
+                    userType = array_.get(0);
+                    valid = validaUser(var_nom, var_contr);
+                    if(valid == true){
+                        switch(userType){
+                            case "Alumno":
+                                MenuAlumno_();
+                                break;
+                            case "Preceptor":
+                                MenuPreceptor();
+                                break;
+                            case "Gestor":
+                                JOptionPane.showMessageDialog(null, "Menu de Gestor");
+                                break;
+                            case "Profesor":
+                                JOptionPane.showMessageDialog(null, "Menu profesor");
+                                break;
+                            default:
+                                break;
+                        }
+                    }else{
+                        JOptionPane.showMessageDialog(null, "Nombre de usuario o contraseña no válidos");
                     }
-                }else{
+                }catch(Exception e){
                     JOptionPane.showMessageDialog(null, "Nombre de usuario o contraseña no válidos");
                 }
+                
             case 1:
                 System.out.println("");
                 break;
@@ -489,6 +506,8 @@ public class Cuaderno extends JFrame{
             JTextField Temail = new JTextField();
             Temail.setBounds(370, 240, 140, 25);
 
+            
+            
             JButton registrarse = new JButton("Confirmar");
             registrarse.setBounds(500, 500, 140, 25);
             registrarse.addActionListener(new ActionListener() {
@@ -679,11 +698,12 @@ public class Cuaderno extends JFrame{
             if (mail.contains("@") && mail.contains(".com")){
                 return mail;
             }else{
-                System.out.println("Correo incorrecto");
-                return "";
+                JOptionPane.showMessageDialog(null, "Correo no válido");
+                return null;
             }
         }
     }
+    
     public boolean validaUser(String var_nom, String psswd){
         ArrayList<String> lista = new ArrayList<>();
         lista = consultaWhere2("username", "psswd", "usuarios", "username", var_nom, psswd);
@@ -693,6 +713,7 @@ public class Cuaderno extends JFrame{
             return false;
         }
     }
+
     public void insert(String nom_us, String contra, String tipo, int dni, String nombre, String apellido, String fecha, String direccion, int telefono, int pro_cod, int loc_cod, int nac_cod, String mail) {
         ConexionDB db = new ConexionDB();
         Connection con = db.iniciarConexion();
@@ -731,7 +752,7 @@ public class Cuaderno extends JFrame{
                 System.out.println("No se pudo insertar el registro\n");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Datos no válidos o ya existen");
         } finally {
             try {
                 if (preparedStatement != null) {
@@ -1015,8 +1036,9 @@ public class Cuaderno extends JFrame{
         panel.add(panel_op);
         this.setContentPane(panel);
     }
-    
     public void MenuDocenteSecundaria(){}
-    public void MenuPreceptor(){}
+    public void MenuPreceptor(){
+        JOptionPane.showMessageDialog(null, "Menu Preceptor");
+    }
 
 }
